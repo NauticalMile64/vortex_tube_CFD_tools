@@ -1,0 +1,403 @@
+! $numDivs = 6;
+
+! $R_offset = 0.00001;
+
+! $zp1 = 0.307547489;
+# ! $zp1 = 0.307797488963541;
+! $zp2 = 0.313047488;
+
+! $rp1 = 0.0025 + $R_offset;
+# ! $rp1 = 0.0026443375672974065 + $R_offset;
+! $rp2 = 0.0056837 + $R_offset;
+
+#Setup turbo mode so we can access cylindrical velocity components
+> turbo setup_cyl
+DATA READER:
+  # Update to current case name
+  CASE:Case ModelA1_SASSST_001
+    DOMAIN:Default Domain Modified
+      Principal Axis = Z
+      Rotation Axis Type = Principal Axis
+    END
+  END
+END
+> turbo update_theta
+> turbo more_vars
+#> turbo init
+
+#Colour Wireframe
+WIREFRAME:Wireframe
+  Colour = 0, 0, 0
+  Line Colour Mode = User Specified
+END
+
+#Create new variables
+USER SCALAR VARIABLE:Rnew
+  Calculate Global Range = On
+  Expression = if(Radius>0 [m],Radius,1.0 [m])
+  Recipe = Expression
+END
+
+USER SCALAR VARIABLE:AngVel
+  Calculate Global Range = On
+  Expression = (Velocity Circumferential)/Rnew
+  Recipe = Expression
+END
+
+USER VECTOR VARIABLE:Temperature.Gradient
+  Calculate Global Range = On
+  Recipe = Gradient
+  Variable to Gradient = Temperature
+END
+
+USER VECTOR VARIABLE:Velocity Radial.Gradient
+  Calculate Global Range = On
+  Recipe = Gradient
+  Variable to Gradient = Velocity Radial
+END
+
+USER VECTOR VARIABLE:AngVel.Gradient
+  Calculate Global Range = On
+  Recipe = Gradient
+  Variable to Gradient = AngVel
+END
+
+USER VECTOR VARIABLE:Velocity Axial.Gradient
+  Calculate Global Range = On
+  Recipe = Gradient
+  Variable to Gradient = Velocity Axial
+END
+
+USER VECTOR VARIABLE:Static Enthalpy.Gradient
+  Calculate Global Range = On
+  Recipe = Gradient
+  Variable to Gradient = Static Enthalpy
+END
+
+#Get Starting Curve for profile extraction
+
+#USER SURFACE:W0Surface
+#  Option = Offset From Surface
+#  Domain List = Default Domain Modified
+#  Offset Distance = -0.075 [mm]
+#  Surface Name = Primitive 2D
+#  Offset Direction = 1 , 0 , 0
+#  Offset Mode = Uniform
+#  Offset Type = Normal
+#  Offset Variable = Density
+#  Option = Offset From Surface
+#  Principal Axis = Z
+#  Range = Global
+#  Visibility = Off
+#END
+
+#CONTOUR:W0Contour
+#  Contour Range = User Specified
+#  Culling Mode = No Culling
+#  Domain List = /DOMAIN GROUP:All Domains
+#  Draw Contours = On
+#  Location List = /USER SURFACE:W0Surface
+#  Max = 3 [m s^-1]
+#  Min = -3 [m s^-1]
+#  Number of Contours = 3
+#  Visibility = Off
+#END
+
+! $isTrans = 0;
+
+! $PI = 4 * atan2(1, 1);
+! $varList = 'X, Y, Z, Radius, Theta, Axial Distance, Thermal Conductivity, Dynamic Viscosity, Eddy Viscosity, Static Enthalpy, Temperature, Density, Velocity, Velocity Radial, Velocity Axial, Velocity Circumferential, Normal, Temperature.Gradient, Total Enthalpy.Gradient, Static Enthalpy.Gradient, Turbulence Kinetic Energy.Gradient, AngVel.Gradient, Velocity Radial.Gradient, Velocity Axial.Gradient';
+
+!if ($isTrans == 1){
+
+	! $varList = $varList.', Eddy Viscosity.Trnavg, Static Enthalpy.Trnavg, Temperature.Trnavg, Density.Trnavg, Velocity.Trnavg, Velocity.Trnavg Radial, Velocity.Trnavg Axial, Velocity.Trnavg Circumferential, Temperature.Trnavg.Gradient, Total Enthalpy.Trnavg.Gradient, Static Enthalpy.Trnavg.Gradient, Turbulence Kinetic Energy.Trnavg.Gradient, AngVelTrnavg.Gradient, Velocity.Trnavg Radial.Gradient, Velocity.Trnavg Axial.Gradient';
+
+	USER SCALAR VARIABLE:AngVelTrnavg
+	  Calculate Global Range = On
+	  Expression = (Velocity.Trnavg Circumferential)/Rnew
+	  Recipe = Expression
+	END
+
+	USER VECTOR VARIABLE:Velocity.Trnavg Radial.Gradient
+	  Calculate Global Range = On
+	  Recipe = Gradient
+	  Variable to Gradient = Velocity.Trnavg Radial
+	END
+
+	USER VECTOR VARIABLE:AngVelTrnavg.Gradient
+	  Calculate Global Range = On
+	  Recipe = Gradient
+	  Variable to Gradient = AngVelTrnavg
+	END
+
+	USER VECTOR VARIABLE:Velocity.Trnavg Axial.Gradient
+	  Calculate Global Range = On
+	  Recipe = Gradient
+	  Variable to Gradient = Velocity.Trnavg Axial
+	END
+
+	USER SCALAR VARIABLE:absAxialVelTrnavg
+	  Calculate Global Range = On
+	  Expression = abs(Velocity.Trnavg Axial)
+	  Recipe = Expression
+	END
+	
+	USER SCALAR VARIABLE:absRadialVelTrnavg
+	  Calculate Global Range = On
+	  Expression = abs(Velocity.Trnavg Radial)
+	  Recipe = Expression
+	END
+	
+	USER VECTOR VARIABLE:Static Enthalpy.Trnavg.Gradient
+	  Calculate Global Range = On
+	  Recipe = Gradient
+	  Variable to Gradient = Static Enthalpy.Trnavg
+	END
+
+	USER VECTOR VARIABLE:Temperature.Trnavg.Gradient
+	  Calculate Global Range = On
+	  Recipe = Gradient
+	  Variable to Gradient = Temperature.Trnavg
+	END
+
+	USER VECTOR VARIABLE:Total Enthalpy.Trnavg.Gradient
+	  Calculate Global Range = On
+	  Recipe = Gradient
+	  Variable to Gradient = Total Enthalpy.Trnavg
+	END
+
+	USER VECTOR VARIABLE:Turbulence Kinetic Energy.Trnavg.Gradient
+	  Calculate Global Range = On
+	  Recipe = Gradient
+	  Variable to Gradient = Turbulence Kinetic Energy.Trnavg
+	END
+
+!}
+
+EXPORT:
+  ANSYS Export Data = Element Heat Flux
+  ANSYS File Format = ANSYS
+  ANSYS Reference Temperature = 0.0 [K]
+  ANSYS Specify Reference Temperature = Off
+  ANSYS Supplemental HTC = 0.0 [W m^-2 K^-1]
+  BC Profile Type = Custom
+  Export Connectivity = On
+  Export Coord Frame = Global
+  Export Geometry = Off
+  Export Node Numbers = Off
+  Export Null Data = On
+  Export Type = Generic
+  Export Units System = Current
+  Export Variable Type = Current
+  External Export Data = None
+  Include File Information = Off
+  Include Header = On
+  Null Token = null
+  Overwrite = On
+  Precision = 8
+  Separator = ", "
+  Spatial Variables = X,Y,Z
+  Variable List = $varList
+  Vector Brackets = -
+  Vector Display = Components
+END
+
+
+USER SCALAR VARIABLE:absAxialVel
+  Calculate Global Range = On
+  Expression = abs(Velocity Axial)
+  Recipe = Expression
+END
+
+USER SCALAR VARIABLE:absRadialVel
+  Calculate Global Range = On
+  Expression = abs(Velocity Radial)
+  Recipe = Expression
+END
+
+#USER SCALAR VARIABLE:AbsShearZ
+#  Calculate Global Range = Off
+#  Expression = abs(Wall Shear Z)
+#  Recipe = Expression
+#END
+
+!for ($i=0; $i < $numDivs; $i++) {
+	
+	#! $Ang = $i*$PI/(2*$numDivs) - $PI/2;
+	! $Ang = 2*$i*$PI/$numDivs;
+	! $cosAng = cos($Ang);
+	! $sinAng = sin($Ang);
+	
+	PLANE: Plane $i
+	  Colour = 0.333333, 0, 0
+	  Normal = $sinAng , $cosAng , 0
+	  Option = Point and Normal
+	  Point = 0 [m], 0 [m], 0 [m]
+	END
+	
+	#ISO CLIP: Iso Clip $i
+	#  Location List = /PLANE:Plane $i
+	#  ISO CLIP LIMITER: Iso Clip Limiter 1
+	#	Limiter Operation = Less Or Equal To
+	#	Value = 0.0062611 [m]
+	#	Variable = Radius
+	#	Variable Boundary Values = Conservative
+	#  END
+	#  ISO CLIP LIMITER: Iso Clip Limiter 2
+	#	Limiter Operation = Greater Or Equal To
+	#	Value = 0 [m]
+	#	Variable = Y
+	#	Variable Boundary Values = Conservative
+	#  END
+	#END
+	
+	#ISO CLIP: Iso Clip Hot End $i
+	#  Location List = /ISO CLIP:Iso Clip $i
+	#  ISO CLIP LIMITER: Iso Clip Limiter 1
+	#	Limiter Operation = Greater Or Equal To
+	#	Value = 0.3095 [m]
+	#	Variable = Z
+	#	Variable Boundary Values = Conservative
+	#  END
+	#  ISO CLIP LIMITER: Iso Clip Limiter 2
+	#	Limiter Operation = Less Or Equal To
+	#	Value = 0.314617 [m]
+	#	Variable = Z
+	#	Variable Boundary Values = Conservative
+	#  END
+	#END
+	
+	LINE:ExtLine $i
+	  Line Samples = 100
+	  Colour = 0, 0, 1
+	  Line Type = Sample
+	  Option = Two Points
+	  Point 1 = $rp1*$cosAng, -$rp1*$sinAng, $zp1
+	  Point 2 = $rp2*$cosAng, -$rp2*$sinAng, $zp2
+	  #Point 1 = 0 [m], 0.005 [m], 0.09995 [m]
+	  #Point 2 = 0 [m], 0.01 [m], 0.09995 [m]
+	  Visibility = On
+	END
+	
+	#POINT:MinShearPt $i
+	#  Location = /ISO CLIP:Iso Clip Hot End $i
+	#  Option = Variable Minimum
+	#  Variable = AbsShearZ
+	#END
+	
+	!if ($isTrans == 1){
+	
+		POINT:MinShearPt $i Trnavg
+		  Location = /LINE:ExtLine $i
+		  Option = Variable Minimum
+		  Variable = absAxialVelTrnavg
+		END
+		
+		STREAMLINE: MinShearSurfaceSL $i Trnavg
+		  Grid Tolerance = 0.00002
+		  Location List = /PLANE:Plane $i
+		  Streamline Maximum Segments = 100000
+		  Seed Location List = /POINT:MinShearPt $i Trnavg
+		  Seed Point Type = Locations
+		  Streamline Direction = Backward
+		  Locator Sampling Method = Vertex
+		  Maximum Number of Items = 1
+		  Reduction or Max Number = Max Number
+		  Variable = Velocity.Trnavg
+		  Streamline Type = Surface Streamline
+		  Variable Boundary Values = Conservative
+		END
+		
+		STREAMLINE: MinShearSL $i Trnavg
+		  Grid Tolerance = 0.00002
+		  Location List = /POINT:MinShearPt $i Trnavg
+		  Streamline Maximum Segments = 100000
+		  Seed Location List = /POINT:MinShearPt $i Trnavg
+		  Seed Point Type = Locations
+		  Streamline Direction = Backward
+		  Locator Sampling Method = Vertex
+		  Maximum Number of Items = 1
+		  Reduction or Max Number = Max Number
+		  Variable = Velocity.Trnavg
+		  Streamline Type = 3D Streamline
+		  Variable Boundary Values = Conservative
+		END
+	
+		#SURFACE OF REVOLUTION: Surface Of Revolution $i Trnavg
+		#  Option = From Line
+		#  Line Width = 1
+		#  Principal Axis = Z
+		#  Location List = MinShearSL $i Trnavg
+		#  Project to AR Plane = On
+		#  Rotation Axis Type = Principal Axis
+		#  Use Angle Range = On
+		#  Theta Max = 0.5 [degree]
+		#  Theta Min = 0 [degree]
+		#  Theta Points = 3
+		#END
+	!}
+
+	POINT:MinShearPt $i
+	  Location = /LINE:ExtLine $i
+	  Option = Variable Minimum
+	  Variable = absAxialVel
+	END
+
+	STREAMLINE: MinShearSurfaceSL $i
+	  Grid Tolerance = 0.00002
+	  Location List = /PLANE:Plane $i
+	  Streamline Maximum Segments = 100000
+	  Seed Location List = /POINT:MinShearPt $i
+	  Seed Point Type = Locations
+	  Streamline Direction = Backward
+	  Locator Sampling Method = Vertex
+	  Maximum Number of Items = 1
+	  Reduction or Max Number = Max Number
+	  Variable = Velocity
+	  Streamline Type = Surface Streamline
+	  Variable Boundary Values = Conservative
+	END
+
+	STREAMLINE: MinShearSL $i
+	  Grid Tolerance = 0.00002
+	  Location List = /POINT:MinShearPt $i
+	  Streamline Maximum Segments = 100000
+	  Seed Location List = /POINT:MinShearPt $i
+	  Seed Point Type = Locations
+	  Streamline Direction = Backward
+	  Locator Sampling Method = Vertex
+	  Maximum Number of Items = 1
+	  Reduction or Max Number = Max Number
+	  Variable = Velocity
+	  #Streamline Type = Surface Streamline
+	  Streamline Type = 3D Streamline
+	  Variable Boundary Values = Conservative
+	END
+
+	#SURFACE OF REVOLUTION: Surface Of Revolution $i
+	#  Option = From Line
+	#  Line Width = 1
+	#  Principal Axis = Z
+	#  Location List = MinShearSL $i
+	#  Project to AR Plane = On
+	#  Rotation Axis Type = Principal Axis
+	#  Use Angle Range = On
+	#  Theta Max = 0.5 [degree]
+	#  Theta Min = 0 [degree]
+	#  Theta Points = 3
+	#END
+
+	EXPORT:
+	  BC Profile Type = Custom
+	  Include Header = On
+	  #Export Geometry = Off
+	  #ANSYS Export Locator = /SURFACE OF REVOLUTION: Surface Of Revolution $i
+	  ANSYS Export Locator = /STREAMLINE: MinShearSL $i
+	  #Location List = /SURFACE OF REVOLUTION:Surface Of Revolution $i
+	  #Location List = /STREAMLINE: MinShearSL $i Trnavg
+	  Location List = /STREAMLINE: MinShearSL $i
+	  Variable List = $varList
+	  Export File = /Path/To/Folder/ModelA1_SASSST_SL_$i of $numDivs.csv
+	END
+	# >export
+!}
