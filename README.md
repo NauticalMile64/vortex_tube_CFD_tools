@@ -14,6 +14,7 @@ The other files in this minimal OpenFOAM case are required to keep OpenFOAM's `b
 An ANSYS CFX simulation can be initialized using [ModelA1_setup_SASSST.ccl](ModelA1_setup_SASSST.ccl) as a starting point.
 
 ## Results Post-processing
+This section describes how streamlines can be extracted from a completed vortex tube simulation using CFD-Post, and discusses scripts to analyze the energy transfer across the extracted streamlines.
 
 ### Streamline extraction
 If CFX or Fluent results files are post-processed using CFD-Post, the [streamline_post_process.cst](streamline_post_process.cst) file will enable export of streamlines and relevant data from the simulation.
@@ -26,3 +27,17 @@ Users need to make the following adjustments:
 2. Update the case name on line 17 according to the naming of the results file.
 3. Adjust the variables `$zp1` and `$rp1` if necessary. In the associated publication, it was important to use the other two (commented) values for these variables for the k-omega SST turbulence model results, as the default method extracted streamlines that would re-circulate towards the hot plug.
 4. Once satisfied with the visual results from steps 1-3, replace the streamline export path on line 400 with a valid path and file name prefix, uncomment the export command on line 402.
+
+### Streamline Analysis
+The streamlines extracted using the methods in the above section (or any streamline really) can be analyzed using the script [compute_SL_energy_transfer.py](compute_SL_energy_transfer.py). For each streamline in the provided set the script will:
+
+- plot the 2D "unravelled" streamline
+- plot the temperature variation along the streamline
+- plot the local energy transfer due to heat conduction, axial shear work, and circumferential shear work along with the net energy transfer along the streamline, subject to some reasonable assumptions discussed in the associated publication
+- Print out the total energy transfer due to each mode, integrated over the entire streamline
+
+The code will also average the total energy transfers across all the given streamlines.
+
+The script [compare_turbulent_vt_results.py](compare_turbulent_vt_results.py) is similar, except it contrasts specific streamlines, and is more useful for comparing different simulations (e.g. results using different turbulence models).
+
+Both of the above scripts use the function `ReadCFXExport` to read the streamline data stored in the `.csv` files exported by CFD-Post.
