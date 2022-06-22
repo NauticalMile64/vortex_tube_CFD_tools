@@ -10,6 +10,9 @@ The scripts herein were used to pre- and post-process the data in the following 
 
 More information on the scripts found in this repository can be found in the Data in Brief article which will be linked here after its publication.
 
+## Acquiring Simulation Data
+Users wishing to understand how the scripts work before running them on their own simulation results files can download the simulation results (`.cgns`) and streamline data files (`.csv`) from the Zenodo repository at [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6625406.svg)](https://doi.org/10.5281/zenodo.6625406). The data files can be copied into the root of a clone of this repository and the Python scripts should run as expected, or the filepaths in the Python scripts can be adjusted.
+
 ## Meshing
 Steps to produce a Ranque-Hilsch vortex tube mesh for CFX or Fluent in an environment with [OpenFOAM](https://openfoam.org/) v8 and [blockmeshbuilder](https://github.com/NauticalMile64/blockmeshbuilder) (>= v0.2.0) installed:
 1. `$ cd vortex_tube_OFCase`
