@@ -7,6 +7,11 @@ vortex_tube_OFCase/constant/polyMesh
 vortex_tube_OFCase/system/blockMeshDict
 vortex_tube_OFCase/fluentInterface
 
+#Results files
+*.csv
+*.res
+*.cgns
+
 # ##################
 # Default .gitignore
 # ##################
