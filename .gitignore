@@ -1,3 +1,16 @@
+
+# ############################
+# Vortex Tube Specific Ignores
+# ############################
+
+vortex_tube_OFCase/constant/polyMesh
+vortex_tube_OFCase/system/blockMeshDict
+vortex_tube_OFCase/fluentInterface
+
+# ##################
+# Default .gitignore
+# ##################
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
