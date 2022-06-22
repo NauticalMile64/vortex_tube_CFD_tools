@@ -3,6 +3,13 @@
 # vortex_tube_CFD_tools
 Scripts to mesh Ranque-Hilsch vortex tube geometries, run vortex tube simulations, and post-process vortex tube simulation results.
 
+## Related Publications
+The scripts herein were used to pre- and post-process the data in the following journal article:
+
+> N. J. Dyck, M. J. Parker, and A. G. Straatman, “The Impact of Boundary Treatment and Turbulence Model on CFD Simulations of the Ranque-Hilsch Vortex Tube,” Int. J. Refrig. In Press.
+
+More information on the scripts found in this repository can be found in the Data in Brief article which will be linked here after its publication.
+
 ## Meshing
 Steps to produce a Ranque-Hilsch vortex tube mesh for CFX or Fluent in an environment with [OpenFOAM](https://openfoam.org/) v8 and [blockmeshbuilder](https://github.com/NauticalMile64/blockmeshbuilder) (>= v0.2.0) installed:
 1. `$ cd vortex_tube_OFCase`
