@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/506301276.svg)](https://zenodo.org/badge/latestdoi/506301276)
+
 # vortex_tube_CFD_tools
 Scripts to mesh Ranque-Hilsch vortex tube geometries, run vortex tube simulations, and post-process vortex tube simulation results.
 
