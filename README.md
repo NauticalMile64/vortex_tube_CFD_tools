@@ -9,3 +9,6 @@ Steps to produce a Ranque-Hilsch vortex tube mesh for CFX or Fluent in an enviro
 4. `$ foamMeshToFluent` converts the polyMesh into a `.msh` file readable by CFX or Fluent 
 
 The other files in this minimal OpenFOAM case are required to keep OpenFOAM's `blockMesh` command happy, though any user is welcome to update the case structure to be able to run using OpenFOAM.
+
+## Simulation Setup
+An ANSYS CFX simulation can be initialized using [ModelA1_setup_SASSST.ccl](ModelA1_setup_SASSST.ccl) as a starting point.

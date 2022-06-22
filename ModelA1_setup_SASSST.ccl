@@ -1,0 +1,401 @@
+# State file created:  2022/06/16 13:55:38
+# Build 21.2 2021-05-14T23:06:42.980855
+
+LIBRARY:
+  CEL:
+    EXPRESSIONS:
+      CP = 1004.4 [J/kg/K]
+      Ecold = mcold*(CP*staticTcold + (massFlowAveAbs(Velocity)@Cold \
+        Outlet)^2/2 + massFlowAveAbs(ke)@Cold Outlet)
+      Ehot = mhot*(CP*staticThot + (massFlowAveAbs(Velocity)@Hot Outlet)^2/2 \
+        + massFlowAveAbs(ke)@Hot Outlet)
+      Ein = mtot*(CP*TinTot + massFlowAveAbs(ke)@Inlet)
+      Pcold = 0 [kPa]
+      Phot = 76 [kPa]
+      Pref = 14.7 [psi]
+      RUNTIME = 8 [h]
+      STOPTIME = 1.5 [min]
+      TCold = massFlowAve(T)@Cold Outlet
+      TinTot = 296.98 [K]
+      Tref = 295 [K]
+      coldFrac = 0.58689785181331
+      dt = 1.6e-5 [s]
+      massIn = massFlow()@Inlet
+      mcold = massFlow()@Cold Outlet
+      mhot = massFlow()@Hot Outlet
+      mtot = 6.0676 [g/s]
+      staticTcold = massFlowAve(T)@Cold Outlet
+      staticThot = massFlowAve(T)@Hot Outlet
+      totalTcold = massFlowAveAbs(Ttot)@Cold Outlet
+      totalThot = massFlowAveAbs(Ttot)@Hot Outlet
+    END
+  END
+  MATERIAL GROUP: Air Data
+    Group Description = Ideal gas and constant property air. Constant \
+      properties are for dry air at STP (0 C, 1 atm) and 25 C, 1 atm.
+  END
+  MATERIAL GROUP: Calorically Perfect Ideal Gases
+    Group Description = Ideal gases with constant specific heat capacity. \
+      Specific heat is evaluated at STP.
+  END
+  MATERIAL GROUP: Constant Property Gases
+    Group Description = Gaseous substances with constant properties. \
+      Properties are calculated at STP (0C and 1 atm). Can be combined with \
+      NASA SP-273 materials for combustion modelling.
+  END
+  MATERIAL: Air Ideal Gas
+    Material Description = Air Ideal Gas (constant Cp)
+    Material Group = Air Data,Calorically Perfect Ideal Gases
+    Option = Pure Substance
+    Thermodynamic State = Gas
+    PROPERTIES:
+      Option = General Material
+      EQUATION OF STATE:
+        Molar Mass = 28.96 [kg kmol^-1]
+        Option = Ideal Gas
+      END
+      SPECIFIC HEAT CAPACITY:
+        Option = Value
+        Specific Heat Capacity = CP
+        Specific Heat Type = Constant Pressure
+      END
+      REFERENCE STATE:
+        Option = Specified Point
+        Reference Pressure = Pref
+        Reference Specific Enthalpy = CP*Tref
+        Reference Temperature = Tref
+      END
+      DYNAMIC VISCOSITY:
+        Dynamic Viscosity = 1.831E-05 [kg m^-1 s^-1]
+        Option = Value
+      END
+      THERMAL CONDUCTIVITY:
+        Option = Value
+        Thermal Conductivity = 2.61E-2 [W m^-1 K^-1]
+      END
+      ABSORPTION COEFFICIENT:
+        Absorption Coefficient = 0.01 [m^-1]
+        Option = Value
+      END
+      SCATTERING COEFFICIENT:
+        Option = Value
+        Scattering Coefficient = 0.0 [m^-1]
+      END
+      REFRACTIVE INDEX:
+        Option = Value
+        Refractive Index = 1.0 [m m^-1]
+      END
+    END
+  END
+END
+FLOW: Flow Analysis 1
+  SOLUTION UNITS:
+    Angle Units = [rad]
+    Length Units = [m]
+    Mass Units = [kg]
+    Solid Angle Units = [sr]
+    Temperature Units = [K]
+    Time Units = [s]
+  END
+  ANALYSIS TYPE:
+    Option = Transient
+    EXTERNAL SOLVER COUPLING:
+      Option = None
+    END
+    INITIAL TIME:
+      Option = Automatic with Value
+      Time = 0 [s]
+    END
+    TIME DURATION:
+      Option = Time per Run
+      Time per Run = RUNTIME - STOPTIME
+    END
+    TIME STEPS:
+      Option = Timesteps
+      Timesteps = dt
+    END
+  END
+  DOMAIN: Default Domain Modified
+    Coord Frame = Coord 0
+    Domain Type = Fluid
+    Location = fluid 1
+    BOUNDARY: Cold Outlet
+      Boundary Type = OUTLET
+      Location = cold_outlet
+      BOUNDARY CONDITIONS:
+        FLOW REGIME:
+          Option = Subsonic
+        END
+        MASS AND MOMENTUM:
+          Option = Average Static Pressure
+          Pressure Profile Blend = 0.05
+          Relative Pressure = Pcold
+        END
+        PRESSURE AVERAGING:
+          Option = Average Over Whole Outlet
+        END
+      END
+    END
+    BOUNDARY: Default Domain Modified Default
+      Boundary Type = WALL
+      Location = Primitive 2D,Primitive 2D A
+      BOUNDARY CONDITIONS:
+        HEAT TRANSFER:
+          Option = Adiabatic
+        END
+        MASS AND MOMENTUM:
+          Option = No Slip Wall
+        END
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END
+      END
+    END
+    BOUNDARY: Hot Outlet
+      Boundary Type = OUTLET
+      Location = hot_outlet
+      BOUNDARY CONDITIONS:
+        FLOW REGIME:
+          Option = Subsonic
+        END
+        MASS AND MOMENTUM:
+          Mass Flow Rate = (1-coldFrac)*mtot
+          Mass Flow Rate Area = As Specified
+          Option = Mass Flow Rate
+        END
+      END
+    END
+    BOUNDARY: Inlet
+      Boundary Type = INLET
+      Location = inlet0 inner,inlet1 inner,inlet2 inner,inlet3 inner
+      BOUNDARY CONDITIONS:
+        FLOW DIRECTION:
+          Option = Normal to Boundary Condition
+        END
+        FLOW REGIME:
+          Option = Subsonic
+        END
+        HEAT TRANSFER:
+          Option = Total Temperature
+          Total Temperature = TinTot
+        END
+        MASS AND MOMENTUM:
+          Mass Flow Rate = mtot
+          Mass Flow Rate Area = As Specified
+          Option = Mass Flow Rate
+        END
+        TURBULENCE:
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END
+      END
+    END
+    DOMAIN MODELS:
+      BUOYANCY MODEL:
+        Option = Non Buoyant
+      END
+      DOMAIN MOTION:
+        Option = Stationary
+      END
+      MESH DEFORMATION:
+        Option = None
+      END
+      REFERENCE PRESSURE:
+        Reference Pressure = 14.7 [psi]
+      END
+    END
+    FLUID DEFINITION: Fluid 1
+      Material = Air Ideal Gas
+      Option = Material Library
+      MORPHOLOGY:
+        Option = Continuous Fluid
+      END
+    END
+    FLUID MODELS:
+      COMBUSTION MODEL:
+        Option = None
+      END
+      HEAT TRANSFER MODEL:
+        Include Viscous Work Term = On
+        Option = Total Energy
+      END
+      THERMAL RADIATION MODEL:
+        Option = None
+      END
+      TURBULENCE MODEL:
+        Model Version = 2007
+        Option = SAS SST
+      END
+      TURBULENT WALL FUNCTIONS:
+        High Speed Model = On
+        Option = Automatic
+      END
+    END
+    INITIALISATION:
+      Option = Automatic
+      INITIAL CONDITIONS:
+        Velocity Type = Cartesian
+        CARTESIAN VELOCITY COMPONENTS:
+          Option = Automatic with Value
+          U = 0 [m s^-1]
+          V = 0 [m s^-1]
+          W = 0 [m s^-1]
+        END
+        STATIC PRESSURE:
+          Option = Automatic with Value
+          Relative Pressure = 0 [kPa]
+        END
+        TEMPERATURE:
+          Option = Automatic with Value
+          Temperature = Tref
+        END
+        TURBULENCE INITIAL CONDITIONS:
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END
+      END
+    END
+  END
+  OUTPUT CONTROL:
+    BACKUP DATA RETENTION:
+      Option = Delete Old Files
+    END
+    BACKUP RESULTS: Backup Results 1
+      File Compression Level = Default
+      Option = Standard
+      OUTPUT FREQUENCY:
+        Elapsed Time Interval = 6 [h]
+        Option = Elapsed Time Interval
+      END
+    END
+    MONITOR OBJECTS:
+      MONITOR BALANCES:
+        Option = Full
+      END
+      MONITOR FORCES:
+        Option = Full
+      END
+      MONITOR PARTICLES:
+        Option = Full
+      END
+      MONITOR POINT: ECOLD
+        Coord Frame = Coord 0
+        Expression Value = Ecold
+        Option = Expression
+      END
+      MONITOR POINT: EHOT
+        Coord Frame = Coord 0
+        Expression Value = Ehot
+        Option = Expression
+      END
+      MONITOR POINT: EIN
+        Coord Frame = Coord 0
+        Expression Value = Ein
+        Option = Expression
+      END
+      MONITOR POINT: ETOT
+        Coord Frame = Coord 0
+        Expression Value = Ein+Ehot+Ecold
+        Option = Expression
+      END
+      MONITOR POINT: MCOLD
+        Coord Frame = Coord 0
+        Expression Value = mcold
+        Option = Expression
+      END
+      MONITOR POINT: MDIFF
+        Coord Frame = Coord 0
+        Expression Value = massIn + mhot + mcold
+        Option = Expression
+      END
+      MONITOR POINT: MHOT
+        Coord Frame = Coord 0
+        Expression Value = mhot
+        Option = Expression
+      END
+      MONITOR POINT: MIN
+        Coord Frame = Coord 0
+        Expression Value = massIn
+        Option = Expression
+      END
+      MONITOR POINT: PCOLD
+        Coord Frame = Coord 0
+        Expression Value = massFlowAveAbs(Absolute Pressure)@Cold Outlet
+        Option = Expression
+      END
+      MONITOR POINT: PHOT
+        Coord Frame = Coord 0
+        Expression Value = massFlowAveAbs(Absolute Pressure)@Hot Outlet
+        Option = Expression
+      END
+      MONITOR POINT: PIN
+        Coord Frame = Coord 0
+        Expression Value = massFlowAveAbs(Absolute Pressure)@Inlet
+        Option = Expression
+      END
+      MONITOR POINT: StaticTcold
+        Coord Frame = Coord 0
+        Expression Value = staticTcold
+        Option = Expression
+      END
+      MONITOR POINT: StaticThot
+        Coord Frame = Coord 0
+        Expression Value = staticThot
+        Option = Expression
+      END
+      MONITOR POINT: TotalTcold
+        Coord Frame = Coord 0
+        Expression Value = totalTcold
+        Option = Expression
+      END
+      MONITOR POINT: TotalThot
+        Coord Frame = Coord 0
+        Expression Value = totalThot
+        Option = Expression
+      END
+      MONITOR RESIDUALS:
+        Option = Full
+      END
+      MONITOR TOTALS:
+        Option = Full
+      END
+    END
+    RESULTS:
+      File Compression Level = Default
+      Option = Standard
+    END
+  END
+  SOLVER CONTROL:
+    Turbulence Numerics = High Resolution
+    ADVECTION SCHEME:
+      Option = High Resolution
+    END
+    CONVERGENCE CONTROL:
+      Maximum Number of Coefficient Loops = 10
+      Minimum Number of Coefficient Loops = 1
+      Timescale Control = Coefficient Loops
+    END
+    CONVERGENCE CRITERIA:
+      Residual Target = 1.0e-07
+      Residual Type = RMS
+    END
+    ELAPSED WALL CLOCK TIME:
+      Elapsed Time = RUNTIME-STOPTIME
+      Option = Maximum Run Time
+    END
+    INTERRUPT CONTROL:
+      Option = Any Interrupt
+      CONVERGENCE CONDITIONS:
+        Option = Default Conditions
+      END
+    END
+    TRANSIENT SCHEME:
+      Option = Second Order Backward Euler
+      TIMESTEP INITIALISATION:
+        Option = Automatic
+      END
+    END
+  END
+END
+COMMAND FILE:
+  Results Version = 16.0
+  Version = 21.2
+END
