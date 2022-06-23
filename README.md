@@ -22,6 +22,8 @@ Steps to produce a Ranque-Hilsch vortex tube mesh for CFX or Fluent in an enviro
 
 The other files in this minimal OpenFOAM case are required to keep OpenFOAM's `blockMesh` command happy, though any user is welcome to update the case structure to be able to run using OpenFOAM.
 
+The mesh can be inspected using [Paraview](https://www.paraview.org/) by opening the vortex_tube.foam and selecting the `Surface With Edges` representation.
+
 ## Simulation Setup
 An ANSYS CFX simulation can be initialized using [ModelA1_setup_SASSST.ccl](ModelA1_setup_SASSST.ccl) as a starting point.
 
