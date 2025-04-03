@@ -3,7 +3,8 @@ import csv
 import os
 import re
 
-def ReadCFXExport(fileName,hasFaces=False):
+
+def ReadCFXExport(fileName, hasFaces=False):
 	if os.path.isfile(fileName):
 		headerRows = 6
 		with open(fileName) as dataFile:
